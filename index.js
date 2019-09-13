@@ -12,11 +12,6 @@ const { GraphQLScalarType } = require("graphql");
 const { MongoClient } = require("mongodb");
 require("dotenv").config();
 
-const server = new ApolloServer({
-  typeDefs,
-  resolvers
-});
-
 async function start() {
   const app = express();
   const MONGO_DB = process.env.DB_HOST;
@@ -25,7 +20,15 @@ async function start() {
 
   const db = client.db();
 
-  const context = { db };
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    context: async ({ req }) => {
+      const githubToken = req.headers.authorization;
+      const currentUser = await db.collection("users").findOne({ githubToken });
+      return { db, currentUser };
+    }
+  });
 
   server.applyMiddleware({ app });
 
