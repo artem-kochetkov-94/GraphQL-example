@@ -14,7 +14,6 @@ export const ROOT_QUERY = gql`
       ...userInfo
     }
   }
-
   fragment userInfo on User {
     githubLogin
     name
